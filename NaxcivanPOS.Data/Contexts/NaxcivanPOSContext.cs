@@ -16,15 +16,16 @@ namespace NaxcivanPOS.Data.Contexts
         public DbSet<Satis> Satislar { get; set; }
         public DbSet<MehsulKateqoriyasi> MehsulKateqoriyalari { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                // Using in-memory database for testing to avoid LocalDB issues
-                // For production, you would configure a real database connection
-                optionsBuilder.UseInMemoryDatabase("NaxcivanPOS");
-            }
-        }
+        // REFAKTOR EDİLDİ: OnConfiguring metodu silindi, konfiqurasiya artıq Program.cs-dən gəlir
+        // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        // {
+        //     if (!optionsBuilder.IsConfigured)
+        //     {
+        //         // Using in-memory database for testing to avoid LocalDB issues
+        //         // For production, you would configure a real database connection
+        //         optionsBuilder.UseInMemoryDatabase("NaxcivanPOS");
+        //     }
+        // }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

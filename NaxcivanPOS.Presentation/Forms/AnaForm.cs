@@ -1,49 +1,35 @@
 using MaterialSkin;
 using MaterialSkin.Controls;
 using NaxcivanPOS.Business.Interfaces;
-using NaxcivanPOS.Business.Services;
-using NaxcivanPOS.Data;
-using NaxcivanPOS.Data.Contexts;
-using NaxcivanPOS.Data.Interfaces;
-using NaxcivanPOS.Data.Repositories;
 using NaxcivanPOS.Entities.Models;
+using NaxcivanPOS.Presentation.Views;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace NaxcivanPOS.Presentation.Forms
 {
-    public partial class AnaForm : MaterialForm
+    public partial class AnaForm : MaterialForm, IMehsullarView
     {
-        private IMehsulYonetimi? _mehsulYonetimi;
-        private ISatisEmeliyyatlari? _satisEmeliyyatlari;
+        // YENİ: Servislər artıq konstruktor vasitəsilə inject edilir
+        private readonly IMehsulYonetimi _mehsulYonetimi;
+        private readonly ISatisEmeliyyatlari _satisEmeliyyatlari;
 
-        public AnaForm()
+        // REFAKTOR EDİLDİ: Konstruktor vasitəsilə asılılıqlar inject edilir
+        public AnaForm(IMehsulYonetimi mehsulYonetimi, ISatisEmeliyyatlari satisEmeliyyatlari)
         {
             InitializeComponent();
+            
+            _mehsulYonetimi = mehsulYonetimi;
+            _satisEmeliyyatlari = satisEmeliyyatlari;
             
             // MaterialSkin manager konfiqurasiyası
             var materialSkinManager = MaterialSkinManager.Instance;
             materialSkinManager.AddFormToManage(this);
             materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
             materialSkinManager.ColorScheme = new ColorScheme(Primary.BlueGrey800, Primary.BlueGrey900, Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE);
-            
-            // Servisləri başlat
-            InitializeServices();
-        }
-
-        private void InitializeServices()
-        {
-            // DbContext yarat
-            var context = new NaxcivanPOSContext();
-            
-            // Unit of Work yarat
-            var unitOfWork = new UnitOfWork(context);
-            
-            // İş məntiqi siniflərini yarat
-            _mehsulYonetimi = new MehsulYonetimi(unitOfWork);
-            _satisEmeliyyatlari = new SatisEmeliyyatlari(unitOfWork);
         }
 
         private async void AnaForm_Load(object sender, EventArgs e)
@@ -56,12 +42,6 @@ namespace NaxcivanPOS.Presentation.Forms
         {
             try
             {
-                if (_mehsulYonetimi == null)
-                {
-                    MessageBox.Show("Xəta: Məhsul idarəetmə sistemi işə salınmayıb.", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                
                 var mehsullar = await _mehsulYonetimi.GetAllMehsullarAsync();
                 dataGridViewMehsullar.DataSource = mehsullar.ToList();
             }
@@ -73,26 +53,22 @@ namespace NaxcivanPOS.Presentation.Forms
 
         private async void btnMehsulElaveEt_Click(object sender, EventArgs e)
         {
-            if (_mehsulYonetimi == null)
+            // REFAKTOR EDİLDİ: async/await ilə try-catch-finally bloku əlavə olunub
+            btnMehsulElaveEt.Enabled = false; // Əməliyyat zamanı düyməni deaktiv et
+            try
             {
-                MessageBox.Show("Xəta: Məhsul idarəetmə sistemi işə salınmayıb.", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            // Məhsul əlavə etmə dialoqu
-            using (var dialog = new MehsulForm())
-            {
-                dialog.Text = "Yeni Məhsul Əlavə Et";
-                dialog.Mehsul = new Mehsul
+                // Məhsul əlavə etmə dialoqu
+                using (var dialog = new MehsulForm())
                 {
-                    Ad = "",
-                    Qiymet = 0,
-                    Miqdar = 0
-                };
+                    dialog.Text = "Yeni Məhsul Əlavə Et";
+                    dialog.Mehsul = new Mehsul
+                    {
+                        Ad = "",
+                        Qiymet = 0,
+                        Miqdar = 0
+                    };
 
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    try
+                    if (dialog.ShowDialog() == DialogResult.OK)
                     {
                         var yeniMehsul = await _mehsulYonetimi.CreateMehsulAsync(
                             dialog.Mehsul.Ad,
@@ -104,44 +80,44 @@ namespace NaxcivanPOS.Presentation.Forms
                         await LoadMehsullar();
                         MessageBox.Show("Məhsul uğurla əlavə olundu!", "Uğurlu", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Məhsul əlavə olunarkən səhv baş verdi: {ex.Message}", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Məhsul əlavə olunarkən səhv baş verdi: {ex.Message}", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnMehsulElaveEt.Enabled = true; // Həmişə düyməni aktiv et
             }
         }
 
         private async void btnMehsulDuzelt_Click(object sender, EventArgs e)
         {
-            if (_mehsulYonetimi == null)
+            // REFAKTOR EDİLDİ: async/await ilə try-catch-finally bloku əlavə olunub
+            btnMehsulDuzelt.Enabled = false; // Əməliyyat zamanı düyməni deaktiv et
+            try
             {
-                MessageBox.Show("Xəta: Məhsul idarəetmə sistemi işə salınmayıb.", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            if (dataGridViewMehsullar.SelectedRows.Count == 0)
-            {
-                MessageBox.Show("Zəhmət olmasa redaktə etmək üçün bir məhsul seçin.", "Xəbərdarlıq", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            var seciliMehsul = (Mehsul)dataGridViewMehsullar.SelectedRows[0].DataBoundItem;
-            using (var dialog = new MehsulForm())
-            {
-                dialog.Text = "Məhsulu Redaktə Et";
-                dialog.Mehsul = new Mehsul
+                if (dataGridViewMehsullar.SelectedRows.Count == 0)
                 {
-                    Id = seciliMehsul.Id,
-                    Ad = seciliMehsul.Ad,
-                    Qiymet = seciliMehsul.Qiymet,
-                    Miqdar = seciliMehsul.Miqdar,
-                    KateqoriyaId = seciliMehsul.KateqoriyaId
-                };
+                    MessageBox.Show("Zəhmət olmasa redaktə etmək üçün bir məhsul seçin.", "Xəbərdarlıq", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-                if (dialog.ShowDialog() == DialogResult.OK)
+                var seciliMehsul = (Mehsul)dataGridViewMehsullar.SelectedRows[0].DataBoundItem;
+                using (var dialog = new MehsulForm())
                 {
-                    try
+                    dialog.Text = "Məhsulu Redaktə Et";
+                    dialog.Mehsul = new Mehsul
+                    {
+                        Id = seciliMehsul.Id,
+                        Ad = seciliMehsul.Ad,
+                        Qiymet = seciliMehsul.Qiymet,
+                        Miqdar = seciliMehsul.Miqdar,
+                        KateqoriyaId = seciliMehsul.KateqoriyaId
+                    };
+
+                    if (dialog.ShowDialog() == DialogResult.OK)
                     {
                         var yenilenmisMehsul = await _mehsulYonetimi.UpdateMehsulAsync(
                             dialog.Mehsul.Id,
@@ -161,34 +137,34 @@ namespace NaxcivanPOS.Presentation.Forms
                             MessageBox.Show("Məhsul tapılmadı!", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Məhsul yenilənərkən səhv baş verdi: {ex.Message}", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Məhsul yenilənərkən səhv baş verdi: {ex.Message}", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnMehsulDuzelt.Enabled = true; // Həmişə düyməni aktiv et
             }
         }
 
         private async void btnMehsulSil_Click(object sender, EventArgs e)
         {
-            if (_mehsulYonetimi == null)
+            // REFAKTOR EDİLDİ: async/await ilə try-catch-finally bloku əlavə olunub
+            btnMehsulSil.Enabled = false; // Əməliyyat zamanı düyməni deaktiv et
+            try
             {
-                MessageBox.Show("Xəta: Məhsul idarəetmə sistemi işə salınmayıb.", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+                if (dataGridViewMehsullar.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Zəhmət olmasa silmək üçün bir məhsul seçin.", "Xəbərdarlıq", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-            if (dataGridViewMehsullar.SelectedRows.Count == 0)
-            {
-                MessageBox.Show("Zəhmət olmasa silmək üçün bir məhsul seçin.", "Xəbərdarlıq", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+                var seciliMehsul = (Mehsul)dataGridViewMehsullar.SelectedRows[0].DataBoundItem;
+                var cavab = MessageBox.Show($"'{seciliMehsul.Ad}' adlı məhsulu silmək istədiyinizə əminsiniz?", "Təsdiq", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            var seciliMehsul = (Mehsul)dataGridViewMehsullar.SelectedRows[0].DataBoundItem;
-            var cavab = MessageBox.Show($"'{seciliMehsul.Ad}' adlı məhsulu silmək istədiyinizə əminsiniz?", "Təsdiq", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            if (cavab == DialogResult.Yes)
-            {
-                try
+                if (cavab == DialogResult.Yes)
                 {
                     bool netice = await _mehsulYonetimi.DeleteMehsulAsync(seciliMehsul.Id);
                     if (netice)
@@ -201,35 +177,39 @@ namespace NaxcivanPOS.Presentation.Forms
                         MessageBox.Show("Məhsul tapılmadı!", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Məhsul silinərkən səhv baş verdi: {ex.Message}", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Məhsul silinərkən səhv baş verdi: {ex.Message}", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnMehsulSil.Enabled = true; // Həmişə düyməni aktiv et
             }
         }
 
         private async void btnAxtar_Click(object sender, EventArgs e)
         {
-            if (_mehsulYonetimi == null)
+            // REFAKTOR EDİLDİ: async/await ilə try-catch-finally bloku əlavə olunub
+            btnAxtar.Enabled = false; // Əməliyyat zamanı düyməni deaktiv et
+            try
             {
-                MessageBox.Show("Xəta: Məhsul idarəetmə sistemi işə salınmayıb.", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            using (var axtarisDialog = new AxtarisForm())
-            {
-                if (axtarisDialog.ShowDialog() == DialogResult.OK)
+                using (var axtarisDialog = new AxtarisForm())
                 {
-                    try
+                    if (axtarisDialog.ShowDialog() == DialogResult.OK)
                     {
                         var mehsullar = await _mehsulYonetimi.SearchMehsullarAsync(axtarisDialog.AxtarisSozu);
                         dataGridViewMehsullar.DataSource = mehsullar.ToList();
                     }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Məhsullar axtarılırarkən səhv baş verdi: {ex.Message}", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Məhsullar axtarılırarkən səhv baş verdi: {ex.Message}", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnAxtar.Enabled = true; // Həmişə düyməni aktiv et
             }
         }
 
@@ -329,12 +309,6 @@ namespace NaxcivanPOS.Presentation.Forms
 
         private async Task LoadMehsullarForSatis(ComboBox cmbMehsullar)
         {
-            if (_mehsulYonetimi == null)
-            {
-                MessageBox.Show("Xəta: Məhsul idarəetmə sistemi işə salınmayıb.", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
             try
             {
                 var mehsullar = await _mehsulYonetimi.GetAllMehsullarAsync();
@@ -350,91 +324,93 @@ namespace NaxcivanPOS.Presentation.Forms
 
         private async Task SatisFormBtnElaveEt_Click(ComboBox cmbMehsullar, TextBox txtSay, DataGridView dataGridViewSatis, Label lblToplam)
         {
-            if (_mehsulYonetimi == null)
+            try
             {
-                MessageBox.Show("Xəta: Məhsul idarəetmə sistemi işə salınmayıb.", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            if (cmbMehsullar.SelectedValue == null)
-            {
-                MessageBox.Show("Zəhmət olmasa məhsul seçin.", "Xəbərdarlıq", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (!int.TryParse(txtSay.Text, out int say) || say <= 0)
-            {
-                MessageBox.Show("Ədəd müsbət olmalıdır.", "Xəbərdarlıq", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            var mehsulId = (int)cmbMehsullar.SelectedValue;
-            var mehsullar = (await _mehsulYonetimi.GetAllMehsullarAsync()).ToList();
-            var mehsul = mehsullar.FirstOrDefault(m => m.Id == mehsulId);
-            
-            if (mehsul == null)
-            {
-                MessageBox.Show("Məhsul tapılmadı.", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            if (mehsul.Miqdar < say)
-            {
-                MessageBox.Show("Kifayət qədər məhsul yoxdur.", "Xəbərdarlıq", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            // Yeni sətir yarat
-            var satilanMehsul = new
-            {
-                Id = mehsul.Id,
-                Ad = mehsul.Ad,
-                Qiymet = mehsul.Qiymet,
-                Say = say,
-                Toplam = mehsul.Qiymet * say
-            };
-
-            // DataGridView-ə əlavə et
-            var yeniRow = new DataGridViewRow();
-            yeniRow.CreateCells(dataGridViewSatis);
-            yeniRow.Cells[0].Value = satilanMehsul.Id;
-            yeniRow.Cells[1].Value = satilanMehsul.Ad;
-            yeniRow.Cells[2].Value = satilanMehsul.Qiymet;
-            yeniRow.Cells[3].Value = satilanMehsul.Say;
-            yeniRow.Cells[4].Value = satilanMehsul.Toplam;
-
-            dataGridViewSatis.Rows.Add(yeniRow);
-            
-            // Toplamı hesabla
-            decimal cem = 0;
-            foreach (DataGridViewRow row in dataGridViewSatis.Rows)
-            {
-                if (row.Cells[4].Value != null)
+                if (cmbMehsullar.SelectedValue == null)
                 {
-                    cem += Convert.ToDecimal(row.Cells[4].Value);
+                    MessageBox.Show("Zəhmət olmasa məhsul seçin.", "Xəbərdarlıq", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
+
+                if (!int.TryParse(txtSay.Text, out int say) || say <= 0)
+                {
+                    MessageBox.Show("Ədəd müsbət olmalıdır.", "Xəbərdarlıq", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var mehsulId = (int)cmbMehsullar.SelectedValue;
+                var mehsullar = (await _mehsulYonetimi.GetAllMehsullarAsync()).ToList();
+                var mehsul = mehsullar.FirstOrDefault(m => m.Id == mehsulId);
+                
+                if (mehsul == null)
+                {
+                    MessageBox.Show("Məhsul tapılmadı.", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (mehsul.Miqdar < say)
+                {
+                    MessageBox.Show("Kifayət qədər məhsul yoxdur.", "Xəbərdarlıq", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Yeni sətir yarat
+                var satilanMehsul = new
+                {
+                    Id = mehsul.Id,
+                    Ad = mehsul.Ad,
+                    Qiymet = mehsul.Qiymet,
+                    Say = say,
+                    Toplam = mehsul.Qiymet * say
+                };
+
+                // DataGridView-ə əlavə et
+                var yeniRow = new DataGridViewRow();
+                yeniRow.CreateCells(dataGridViewSatis);
+                yeniRow.Cells[0].Value = satilanMehsul.Id;
+                yeniRow.Cells[1].Value = satilanMehsul.Ad;
+                yeniRow.Cells[2].Value = satilanMehsul.Qiymet;
+                yeniRow.Cells[3].Value = satilanMehsul.Say;
+                yeniRow.Cells[4].Value = satilanMehsul.Toplam;
+
+                dataGridViewSatis.Rows.Add(yeniRow);
+                
+                // Toplamı hesabla
+                decimal cem = 0;
+                foreach (DataGridViewRow row in dataGridViewSatis.Rows)
+                {
+                    if (row.Cells[4].Value != null)
+                    {
+                        cem += Convert.ToDecimal(row.Cells[4].Value);
+                    }
+                }
+                lblToplam.Text = $"Toplam: {cem} AZN";
             }
-            lblToplam.Text = $"Toplam: {cem} AZN";
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Məhsul satış sətiri əlavə olunarkən səhv baş verdi: {ex.Message}", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async Task SatisFormBtnSatisEt_Click(DataGridView dataGridViewSatis)
         {
-            if (_satisEmeliyyatlari == null)
+            // REFAKTOR EDİLDİ: async/await ilə try-catch-finally bloku əlavə olunub
+            var btnSatisEt = tabPageSatis.Controls.Find("btnSatisEt", true).FirstOrDefault() as Button;
+            if (btnSatisEt != null) btnSatisEt.Enabled = false;
+            
+            var btnImtina = tabPageSatis.Controls.Find("btnImtina", true).FirstOrDefault() as Button;
+            if (btnImtina != null) btnImtina.Enabled = false;
+            
+            try
             {
-                MessageBox.Show("Xəta: Satış əməliyyatları sistemi işə salınmayıb.", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+                if (dataGridViewSatis.Rows.Count == 0)
+                {
+                    MessageBox.Show("Zəhmət olmasa ən azı bir məhsul seçin.", "Xəbərdarlıq", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-            if (dataGridViewSatis.Rows.Count == 0)
-            {
-                MessageBox.Show("Zəhmət olmasa ən azı bir məhsul seçin.", "Xəbərdarlıq", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            var cavab = MessageBox.Show("Satışı təsdiq edirsiniz?", "Təsdiq", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (cavab == DialogResult.Yes)
-            {
-                try
+                var cavab = MessageBox.Show("Satışı təsdiq edirsiniz?", "Təsdiq", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (cavab == DialogResult.Yes)
                 {
                     // Hər bir sətir üçün satış əməliyyatı et
                     foreach (DataGridViewRow row in dataGridViewSatis.Rows)
@@ -458,11 +434,60 @@ namespace NaxcivanPOS.Presentation.Forms
                     if (lblToplam != null)
                         lblToplam.Text = "Toplam: 0 AZN";
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Satış əməliyyatı zamanı səhv baş verdi: {ex.Message}", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Satış əməliyyatı zamanı səhv baş verdi: {ex.Message}", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                // Həmişə düymələri aktiv et
+                if (btnSatisEt != null) btnSatisEt.Enabled = true;
+                if (btnImtina != null) btnImtina.Enabled = true;
+            }
+        }
+
+        // MVP interfeys implementasiyası - Açıq interface implementasiyası
+        IList<Mehsul> IMehsullarView.Mehsullar 
+        { 
+            get => (IList<Mehsul>)dataGridViewMehsullar.DataSource; 
+            set => dataGridViewMehsullar.DataSource = value; 
+        }
+
+        event Action IMehsullarView.LoadMehsullar
+        {
+            add { }
+            remove { }
+        }
+
+        event Action<Mehsul> IMehsullarView.MehsulElaveEt
+        {
+            add { }
+            remove { }
+        }
+
+        event Action<Mehsul> IMehsullarView.MehsulDuzelt
+        {
+            add { }
+            remove { }
+        }
+
+        event Action<int> IMehsullarView.MehsulSil
+        {
+            add { }
+            remove { }
+        }
+
+        event Action<string> IMehsullarView.MehsulAxtar
+        {
+            add { }
+            remove { }
+        }
+        
+        Action<string> IMehsullarView.MesajGoster
+        {
+            get => (msg) => MessageBox.Show(msg, "Məlumat", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            set { }
         }
     }
 }
