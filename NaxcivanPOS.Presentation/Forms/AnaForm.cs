@@ -7,12 +7,12 @@ using NaxcivanPOS.Data.Contexts;
 using NaxcivanPOS.Data.Interfaces;
 using NaxcivanPOS.Data.Repositories;
 
-namespace NaxcivanPOS.Presentation
+namespace NaxcivanPOS.Presentation.Forms
 {
     public partial class AnaForm : MaterialForm
     {
-        private readonly IMehsulYonetimi _mehsulYonetimi;
-        private readonly ISatisEmeliyyatlari _satisEmeliyyatlari;
+        private IMehsulYonetimi? _mehsulYonetimi;
+        private ISatisEmeliyyatlari? _satisEmeliyyatlari;
 
         public AnaForm()
         {
@@ -50,6 +50,12 @@ namespace NaxcivanPOS.Presentation
         {
             try
             {
+                if (_mehsulYonetimi == null)
+                {
+                    MessageBox.Show("Xəta: Məhsul idarəetmə sistemi işə salınmayıb.", "Xəta", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                
                 var mehsullar = await _mehsulYonetimi.GetAllMehsullarAsync();
                 dataGridViewMehsullar.DataSource = mehsullar.ToList();
             }

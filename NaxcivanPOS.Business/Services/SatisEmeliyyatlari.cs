@@ -36,27 +36,25 @@ namespace NaxcivanPOS.Business.Services
             // Toplam qiyməti hesapla
             decimal toplamQiymet = mehsul.Qiymet * say;
 
+            // Məhsulun sayını azalt
+            mehsul.Miqdar -= say;
+            mehsul.SonGuncellemeTarixi = DateTime.Now;
+            _unitOfWork.MehsulRepository.Update(mehsul);
+
             // Yeni satış yarat
             var satis = new Satis
             {
                 MehsulId = mehsulId,
+                Mehsul = mehsul, // Required member
                 Say = say,
                 ToplamQiymet = toplamQiymet,
                 Tarix = DateTime.Now,
                 IsciAdi = isciAdi
             };
 
-            // Məhsulun sayını azalt
-            mehsul.Miqdar -= say;
-            mehsul.SonGuncellemeTarixi = DateTime.Now;
-            _unitOfWork.MehsulRepository.Update(mehsul);
-
             // Satışı əlavə et
             await _unitOfWork.SatisRepository.AddAsync(satis);
             await _unitOfWork.SaveChangesAsync();
-
-            // Əlaqəli məhsulu əlavə et ki, qaytaranda istifadə olunsun
-            satis.Mehsul = mehsul;
 
             return satis;
         }

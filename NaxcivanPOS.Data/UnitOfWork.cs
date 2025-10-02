@@ -13,8 +13,8 @@ namespace NaxcivanPOS.Data
     public class UnitOfWork : IUnitOfWork
     {
         private readonly NaxcivanPOSContext _context;
-        private IMehsulRepository _mehsulRepository;
-        private ISatisRepository _satisRepository;
+        private IMehsulRepository? _mehsulRepository;
+        private ISatisRepository? _satisRepository;
 
         public UnitOfWork(NaxcivanPOSContext context)
         {

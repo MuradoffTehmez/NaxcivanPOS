@@ -8,7 +8,7 @@ namespace NaxcivanPOS.Entities.Models
     public class Mehsul
     {
         public int Id { get; set; }
-        public string Ad { get; set; }
+        public required string Ad { get; set; }
         public decimal Qiymet { get; set; }
         public int Miqdar { get; set; }
         public DateTime YaradilmaTarixi { get; set; }

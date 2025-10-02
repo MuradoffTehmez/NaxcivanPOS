@@ -9,7 +9,7 @@ namespace NaxcivanPOS.Entities.Models
     {
         public int Id { get; set; }
         public int MehsulId { get; set; }
-        public Mehsul Mehsul { get; set; }
+        public Mehsul? Mehsul { get; set; }
         public int Say { get; set; }
         public decimal ToplamQiymet { get; set; }
         public DateTime Tarix { get; set; }
