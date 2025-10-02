@@ -14,6 +14,7 @@ namespace NaxcivanPOS.Data.Contexts
 
         public DbSet<Mehsul> Mehsullar { get; set; }
         public DbSet<Satis> Satislar { get; set; }
+        public DbSet<MehsulKateqoriyasi> MehsulKateqoriyalari { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -35,6 +36,12 @@ namespace NaxcivanPOS.Data.Contexts
                 entity.Property(e => e.Qiymet).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.YaradilmaTarixi).HasDefaultValueSql("GETDATE()");
                 entity.Property(e => e.SonGuncellemeTarixi).HasDefaultValueSql("GETDATE()");
+                
+                // Əlaqələr
+                entity.HasOne(m => m.Kateqoriya)
+                      .WithMany()
+                      .HasForeignKey(m => m.KateqoriyaId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
             // Satis cədvəli konfiqurasiyası
@@ -43,12 +50,21 @@ namespace NaxcivanPOS.Data.Contexts
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.ToplamQiymet).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Tarix).HasDefaultValueSql("GETDATE()");
-
+                
                 // Əlaqələr
                 entity.HasOne(s => s.Mehsul)
                       .WithMany()
                       .HasForeignKey(s => s.MehsulId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // MehsulKateqoriyasi cədvəli konfiqurasiyası
+            modelBuilder.Entity<MehsulKateqoriyasi>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Ad).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.YaradilmaTarixi).HasDefaultValueSql("GETDATE()");
+                entity.Property(e => e.SonGuncellemeTarixi).HasDefaultValueSql("GETDATE()");
             });
 
             base.OnModelCreating(modelBuilder);

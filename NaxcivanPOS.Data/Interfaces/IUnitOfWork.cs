@@ -7,6 +7,7 @@ namespace NaxcivanPOS.Data.Interfaces
     {
         IMehsulRepository MehsulRepository { get; }
         ISatisRepository SatisRepository { get; }
+        IMehsulKateqoriyasiRepository MehsulKateqoriyasiRepository { get; }
         Task<int> SaveChangesAsync();
     }
 }

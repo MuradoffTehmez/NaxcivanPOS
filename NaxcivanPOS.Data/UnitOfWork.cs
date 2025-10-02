@@ -1,6 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using NaxcivanPOS.Data.Contexts;
 using NaxcivanPOS.Data.Interfaces;
 using NaxcivanPOS.Data.Repositories;
+using System;
+using System.Threading.Tasks;
 
 namespace NaxcivanPOS.Data
 {
@@ -12,6 +15,7 @@ namespace NaxcivanPOS.Data
         private readonly NaxcivanPOSContext _context;
         private IMehsulRepository? _mehsulRepository;
         private ISatisRepository? _satisRepository;
+        private IMehsulKateqoriyasiRepository? _mehsulKateqoriyasiRepository;
 
         public UnitOfWork(NaxcivanPOSContext context)
         {
@@ -39,6 +43,18 @@ namespace NaxcivanPOS.Data
                     _satisRepository = new SatisRepository(_context);
                 }
                 return _satisRepository;
+            }
+        }
+
+        public IMehsulKateqoriyasiRepository MehsulKateqoriyasiRepository
+        {
+            get
+            {
+                if (_mehsulKateqoriyasiRepository == null)
+                {
+                    _mehsulKateqoriyasiRepository = new MehsulKateqoriyasiRepository(_context);
+                }
+                return _mehsulKateqoriyasiRepository;
             }
         }
 

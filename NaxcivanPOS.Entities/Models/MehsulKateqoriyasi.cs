@@ -1,16 +1,15 @@
+using System;
+
 namespace NaxcivanPOS.Entities.Models
 {
     /// <summary>
-    /// Məhsul sinfi - sistemdəki məhsulları təmsil edir
+    /// Məhsul Kateqoriyası sinfi
     /// </summary>
-    public class Mehsul
+    public class MehsulKateqoriyasi
     {
         public int Id { get; set; }
         public required string Ad { get; set; }
-        public decimal Qiymet { get; set; }
-        public int Miqdar { get; set; }
-        public int? KateqoriyaId { get; set; }
-        public MehsulKateqoriyasi? Kateqoriya { get; set; }
+        public string? Tanim { get; set; }
         public DateTime YaradilmaTarixi { get; set; }
         public DateTime SonGuncellemeTarixi { get; set; }
     }
