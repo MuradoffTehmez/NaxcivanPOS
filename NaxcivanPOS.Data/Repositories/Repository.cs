@@ -11,6 +11,7 @@ namespace NaxcivanPOS.Data.Repositories
     public class Repository<T> : IRepository<T> where T : class
     {
         protected readonly DbContext _context;
+
         protected readonly DbSet<T> _dbSet;
 
         public Repository(DbContext context)
