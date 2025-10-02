@@ -1,4 +1,3 @@
-using NaxcivanPOS.Data.Interfaces;
 using NaxcivanPOS.Entities.Models;
 
 namespace NaxcivanPOS.Data.Interfaces

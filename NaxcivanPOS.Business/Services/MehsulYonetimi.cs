@@ -1,9 +1,6 @@
 using NaxcivanPOS.Business.Interfaces;
 using NaxcivanPOS.Data.Interfaces;
 using NaxcivanPOS.Entities.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace NaxcivanPOS.Business.Services
 {
@@ -39,10 +36,10 @@ namespace NaxcivanPOS.Business.Services
             // Təhlükəsizlik yoxlaması - giriş yoxlaması
             if (string.IsNullOrWhiteSpace(ad))
                 throw new ArgumentException("Məhsul adı boş ola bilməz");
-            
+
             if (qiymet < 0)
                 throw new ArgumentException("Qiymət mənfi ola bilməz");
-            
+
             if (miqdar < 0)
                 throw new ArgumentException("Miqdar mənfi ola bilməz");
 
@@ -68,10 +65,10 @@ namespace NaxcivanPOS.Business.Services
             // Təhlükəsizlik yoxlaması
             if (string.IsNullOrWhiteSpace(ad))
                 throw new ArgumentException("Məhsul adı boş ola bilməz");
-            
+
             if (qiymet < 0)
                 throw new ArgumentException("Qiymət mənfi ola bilməz");
-            
+
             if (miqdar < 0)
                 throw new ArgumentException("Miqdar mənfi ola bilməz");
 

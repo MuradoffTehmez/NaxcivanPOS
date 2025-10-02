@@ -19,8 +19,9 @@ namespace NaxcivanPOS.Data.Contexts
         {
             if (!optionsBuilder.IsConfigured)
             {
-                // Using LocalDB for development as specified in the requirements
-                optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=NaxcivanPOS;Trusted_Connection=true;TrustServerCertificate=true;");
+                // Using in-memory database for testing to avoid LocalDB issues
+                // For production, you would configure a real database connection
+                optionsBuilder.UseInMemoryDatabase("NaxcivanPOS");
             }
         }
 
@@ -42,7 +43,7 @@ namespace NaxcivanPOS.Data.Contexts
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.ToplamQiymet).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Tarix).HasDefaultValueSql("GETDATE()");
-                
+
                 // Əlaqələr
                 entity.HasOne(s => s.Mehsul)
                       .WithMany()

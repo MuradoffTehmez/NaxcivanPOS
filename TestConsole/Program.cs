@@ -44,7 +44,8 @@ namespace NaxcivanPOS.TestConsole
             }
             
             Console.WriteLine("Test uğurla tamamlandı!");
-            Console.ReadKey();
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadLine();
         }
     }
 }

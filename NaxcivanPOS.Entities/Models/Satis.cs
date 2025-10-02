@@ -1,5 +1,3 @@
-using System;
-
 namespace NaxcivanPOS.Entities.Models
 {
     /// <summary>

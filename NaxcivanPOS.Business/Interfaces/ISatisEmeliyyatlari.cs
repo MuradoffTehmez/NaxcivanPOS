@@ -1,7 +1,4 @@
 using NaxcivanPOS.Entities.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace NaxcivanPOS.Business.Interfaces
 {

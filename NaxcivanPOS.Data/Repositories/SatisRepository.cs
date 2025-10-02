@@ -1,10 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NaxcivanPOS.Data.Interfaces;
-using NaxcivanPOS.Data.Repositories;
 using NaxcivanPOS.Entities.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace NaxcivanPOS.Data.Repositories
 {
