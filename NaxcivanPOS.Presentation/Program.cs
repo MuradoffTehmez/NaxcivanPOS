@@ -1,64 +1,72 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
 using NaxcivanPOS.Business.Interfaces;
 using NaxcivanPOS.Business.Services;
 using NaxcivanPOS.Data;
 using NaxcivanPOS.Data.Contexts;
 using NaxcivanPOS.Data.Interfaces;
 using NaxcivanPOS.Presentation.Forms;
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
-namespace NaxcivanPOS.Presentation;
-
-static class Program
+namespace NaxcivanPOS.Presentation
 {
-    /// <summary>
-    ///  The main entry point for the application.
-    /// </summary>
-    [STAThread]
-    static void Main()
+    internal static class Program
     {
-        // Create host with configured services
-        var host = CreateHostBuilder().Build();
+        private static IHost? _host;
 
-        // Initialize application
-        ApplicationConfiguration.Initialize();
+        [STAThread]
+        static async Task Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
-        // Get AnaForm from service provider and run it
-        using var scope = host.Services.CreateScope();
-        var anaForm = scope.ServiceProvider.GetRequiredService<AnaForm>();
-        
-        Application.Run(anaForm);
-    }
+            _host = Host.CreateDefaultBuilder()
+                .ConfigureServices(ConfigureServices)
+                .Build();
 
-    static IHostBuilder CreateHostBuilder()
-    {
-        return Host.CreateDefaultBuilder()
-            .ConfigureAppConfiguration((context, config) =>
-            {
-                config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-            })
-            .ConfigureServices((context, services) =>
-            {
-                // Add Entity Framework DbContext
-                services.AddDbContext<NaxcivanPOSContext>(options =>
-                    // YENİ: DbContext konfiqurasiyası artıq appsettings.json-dan oxunur
-                    Microsoft.EntityFrameworkCore.SqlServerDbContextOptionsExtensions.UseSqlServer(
-                        options, 
-                        context.Configuration.GetConnectionString("DefaultConnection")));
+            await _host.StartAsync();
 
-                // Add repositories and UnitOfWork
-                services.AddScoped<IUnitOfWork, UnitOfWork>();
+            var mainForm = _host.Services.GetRequiredService<AnaForm>();
+            Application.Run(mainForm);
 
-                // Add business services
-                services.AddScoped<IMehsulYonetimi, MehsulYonetimi>();
-                services.AddScoped<ISatisEmeliyyatlari, SatisEmeliyyatlari>();
+            await _host.StopAsync();
+        }
 
-                // Add forms as transient services
-                services.AddTransient<AnaForm>();
-                services.AddTransient<SatisForm>();
-                services.AddTransient<MehsulForm>();
-                services.AddTransient<AxtarisForm>();
-            });
+        private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+        {
+            // Appsettings yüklə
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            services.AddSingleton<IConfiguration>(configuration);
+
+            // DbContext əlavə et
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            services.AddDbContext<NaxcivanPOSContext>(options =>
+                options.UseSqlServer(connectionString));
+
+            // Servislər
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IMehsulYonetimi, MehsulYonetimi>();
+            services.AddScoped<ISatisEmeliyyatlari, SatisEmeliyyatlari>();
+
+            // Form factory-lər
+            services.AddSingleton<Func<SatisForm>>(provider => () => provider.GetRequiredService<SatisForm>());
+            services.AddSingleton<Func<MehsulForm>>(provider => () => provider.GetRequiredService<MehsulForm>());
+            services.AddSingleton<Func<AxtarisForm>>(provider => () => provider.GetRequiredService<AxtarisForm>());
+
+            // Formlar
+            services.AddTransient<SatisForm>();
+            services.AddTransient<MehsulForm>();
+            services.AddTransient<AxtarisForm>();
+            services.AddTransient<AnaForm>();
+        }
     }
 }

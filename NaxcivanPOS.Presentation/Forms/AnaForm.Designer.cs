@@ -7,19 +7,6 @@ namespace NaxcivanPOS.Presentation.Forms
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -37,10 +24,10 @@ namespace NaxcivanPOS.Presentation.Forms
             materialTabControl1 = new MaterialSkin.Controls.MaterialTabControl();
             tabPageRaporlar = new TabPage();
             tabPageAyarlar = new TabPage();
-            btnMehsulElaveEt = new Button();
-            btnMehsulDuzelt = new Button();
-            btnMehsulSil = new Button();
-            btnAxtar = new Button();
+            btnMehsulElaveEt = new MaterialSkin.Controls.MaterialButton();
+            btnMehsulDuzelt = new MaterialSkin.Controls.MaterialButton();
+            btnMehsulSil = new MaterialSkin.Controls.MaterialButton();
+            btnAxtar = new MaterialSkin.Controls.MaterialButton();
             ((System.ComponentModel.ISupportInitialize)dataGridViewMehsullar).BeginInit();
             materialTabControl1.SuspendLayout();
             SuspendLayout();
@@ -142,43 +129,79 @@ namespace NaxcivanPOS.Presentation.Forms
             // 
             // btnMehsulElaveEt
             // 
+            btnMehsulElaveEt.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            btnMehsulElaveEt.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            btnMehsulElaveEt.Depth = 0;
+            btnMehsulElaveEt.HighEmphasis = true;
+            btnMehsulElaveEt.Icon = null;
             btnMehsulElaveEt.Location = new Point(6, 6);
+            btnMehsulElaveEt.Margin = new Padding(4, 6, 4, 6);
+            btnMehsulElaveEt.MouseState = MaterialSkin.MouseState.HOVER;
             btnMehsulElaveEt.Name = "btnMehsulElaveEt";
-            btnMehsulElaveEt.Size = new Size(100, 30);
+            btnMehsulElaveEt.NoAccentTextColor = Color.Empty;
+            btnMehsulElaveEt.Size = new Size(101, 36);
             btnMehsulElaveEt.TabIndex = 2;
             btnMehsulElaveEt.Text = "Əlavə Et";
+            btnMehsulElaveEt.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            btnMehsulElaveEt.UseCompatibleTextRendering = true;
             btnMehsulElaveEt.UseVisualStyleBackColor = true;
-            btnMehsulElaveEt.Click += btnMehsulElaveEt_Click;
             // 
             // btnMehsulDuzelt
             // 
+            btnMehsulDuzelt.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            btnMehsulDuzelt.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            btnMehsulDuzelt.Depth = 0;
+            btnMehsulDuzelt.HighEmphasis = true;
+            btnMehsulDuzelt.Icon = null;
             btnMehsulDuzelt.Location = new Point(112, 6);
+            btnMehsulDuzelt.Margin = new Padding(4, 6, 4, 6);
+            btnMehsulDuzelt.MouseState = MaterialSkin.MouseState.HOVER;
             btnMehsulDuzelt.Name = "btnMehsulDuzelt";
-            btnMehsulDuzelt.Size = new Size(100, 30);
+            btnMehsulDuzelt.NoAccentTextColor = Color.Empty;
+            btnMehsulDuzelt.Size = new Size(101, 36);
             btnMehsulDuzelt.TabIndex = 3;
-            btnMehsulDuzelt.Text = "Redaktə Et";
+            btnMehsulDuzelt.Text = "Düzəlt";
+            btnMehsulDuzelt.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            btnMehsulDuzelt.UseCompatibleTextRendering = true;
             btnMehsulDuzelt.UseVisualStyleBackColor = true;
-            btnMehsulDuzelt.Click += btnMehsulDuzelt_Click;
             // 
             // btnMehsulSil
             // 
+            btnMehsulSil.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            btnMehsulSil.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            btnMehsulSil.Depth = 0;
+            btnMehsulSil.HighEmphasis = true;
+            btnMehsulSil.Icon = null;
             btnMehsulSil.Location = new Point(218, 6);
+            btnMehsulSil.Margin = new Padding(4, 6, 4, 6);
+            btnMehsulSil.MouseState = MaterialSkin.MouseState.HOVER;
             btnMehsulSil.Name = "btnMehsulSil";
-            btnMehsulSil.Size = new Size(100, 30);
+            btnMehsulSil.NoAccentTextColor = Color.Empty;
+            btnMehsulSil.Size = new Size(101, 36);
             btnMehsulSil.TabIndex = 4;
             btnMehsulSil.Text = "Sil";
+            btnMehsulSil.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            btnMehsulSil.UseCompatibleTextRendering = true;
             btnMehsulSil.UseVisualStyleBackColor = true;
-            btnMehsulSil.Click += btnMehsulSil_Click;
             // 
             // btnAxtar
             // 
+            btnAxtar.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            btnAxtar.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            btnAxtar.Depth = 0;
+            btnAxtar.HighEmphasis = true;
+            btnAxtar.Icon = null;
             btnAxtar.Location = new Point(324, 6);
+            btnAxtar.Margin = new Padding(4, 6, 4, 6);
+            btnAxtar.MouseState = MaterialSkin.MouseState.HOVER;
             btnAxtar.Name = "btnAxtar";
-            btnAxtar.Size = new Size(100, 30);
+            btnAxtar.NoAccentTextColor = Color.Empty;
+            btnAxtar.Size = new Size(101, 36);
             btnAxtar.TabIndex = 5;
             btnAxtar.Text = "Axtar";
+            btnAxtar.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            btnAxtar.UseCompatibleTextRendering = true;
             btnAxtar.UseVisualStyleBackColor = true;
-            btnAxtar.Click += btnAxtar_Click;
             // 
             // AnaForm
             // 
@@ -188,7 +211,6 @@ namespace NaxcivanPOS.Presentation.Forms
             Controls.Add(materialTabControl1);
             Name = "AnaForm";
             Text = "NaxcivanPOS";
-            Load += AnaForm_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridViewMehsullar).EndInit();
             materialTabControl1.ResumeLayout(false);
             ResumeLayout(false);
@@ -202,9 +224,9 @@ namespace NaxcivanPOS.Presentation.Forms
         private MaterialSkin.Controls.MaterialTabControl materialTabControl1;
         private TabPage tabPageRaporlar;
         private TabPage tabPageAyarlar;
-        private Button btnMehsulElaveEt;
-        private Button btnMehsulDuzelt;
-        private Button btnMehsulSil;
-        private Button btnAxtar;
+        private MaterialSkin.Controls.MaterialButton btnMehsulElaveEt;
+        private MaterialSkin.Controls.MaterialButton btnMehsulDuzelt;
+        private MaterialSkin.Controls.MaterialButton btnMehsulSil;
+        private MaterialSkin.Controls.MaterialButton btnAxtar;
     }
 }
